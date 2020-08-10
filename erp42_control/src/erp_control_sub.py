@@ -39,7 +39,7 @@ class ERP42_Serial():
 
 		self.create_erp42_cmd_packet()
 		self.send_packet()
-		self.receive_packet()
+		#self.receive_packet()
 		# print('{} {} {} {} {} {} {}'.format(self.auto, self.e_stop, self.gear, self.speed, self.brake, self.steering, self.alive))
 		
 		rospy.sleep(0.1)
