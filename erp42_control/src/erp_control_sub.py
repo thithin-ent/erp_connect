@@ -26,14 +26,15 @@ class ERP42_Serial():
 		self.alive = 0
 		
 		rospy.init_node('erp42_sub', anonymous=True)
-		rospy.Subscriber('/erp42/speed', UInt8, self.speedCallback)
+		rospy.Subscriber('/twist_cmd', TwistStamped, self.speedCallback)
 		rospy.Subscriber('/erp42/brake', UInt8, self.brakeCallback)
-		rospy.Subscriber('/erp42/steering', Int16, self.steeringCallback)
 		rospy.Subscriber('/erp42/gear', UInt8, self.gearCallback)
 		rospy.Subscriber('/erp42/auto', UInt8, self.autoCallback)
 		rospy.Subscriber('/erp42/e_stop', UInt8, self.e_stopCallback)
+		rospy.Subscriber('/twist_cmd', TwistStamped, self.ctrl_Callback)
+		rospy.Subscriber('/detection/image_detector/objects', DetectedObjectArray, self.label_read)
 
-		pub = rospy.Publisher('/test', UInt8 , queue_size = 10)
+		#pub = rospy.Publisher('/test', UInt8 , queue_size = 10)
 	def sub_to_serial(self):
 
 		self.create_erp42_cmd_packet()
@@ -43,33 +44,40 @@ class ERP42_Serial():
 		
 		rospy.sleep(0.1)
 
-
-
 	def speedCallback(self, msg):
-		self.speed = msg.data
+		self.speed = msg.twist.linear.x
 
 	def brakeCallback(self, msg):
 		self.brake = msg.data
-
-	def steeringCallback(self, msg):
-		self.steering = msg.data
 
 	def gearCallback(self, msg):
 		self.gear = msg.data
 
 	def autoCallback(self, msg):
-		
 		self.auto = msg.data
 
 	def e_stopCallback(self, msg):
 		self.e_stop = msg.data
 
+	def ctrl_Callback(self, msg):
+		self.steering = -msg.twist.angular.z
+
+	def label_read(self,msg):
+		la = np.array(msg.objects)
+		print(la[0].label)
+
 	def create_erp42_cmd_packet(self):
+		steer = self.steering*180/3.141592
+		if steer > 28 :
+			steer = 28
+		elif steer < -28 :
+			steer = -28
 		fmt = '>BBBBBBHhBBBB'
 		self.packet_bytes_cmd = struct.pack(fmt, 0x53, 0x54, 0x58
-			,self.auto, self.e_stop, self.gear, int(self.speed*10), int(self.steering*71), self.brake, self.alive
+			,self.auto, self.e_stop, self.gear, int(self.speed*10), int(steer*71), self.brake, self.alive
 			,0xD, 0xA)
-		self.aux_data = [self.auto, self.e_stop, self.gear, self.speed, self.steering, self.brake, self.alive]
+		self.aux_data = [self.auto, self.e_stop, self.gear, self.speed, steer, self.brake, self.alive]
+		#print(self.aux_data)
 		self.alive += 1
 		if self.alive == 256:
 			self.alive = 0
@@ -81,11 +89,11 @@ class ERP42_Serial():
 		self.ser.write(b'\n')
 		# self.ser.close()
 
-	def receive_packet(self):
-		self.read = self.ser.readline()
-		print(self.read)
-		print(self.read[4])
-		pub.publish(self.read[4])
+	#def receive_packet(self):
+		#self.read = self.ser.readline()
+		#print(self.read)
+		#print(self.read[4])
+		#pub.publish(self.read[4])
 
 if __name__ == '__main__':
 
