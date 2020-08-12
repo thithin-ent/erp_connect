@@ -74,6 +74,12 @@ class ERP42_Control():
 				Rspeed = 0
 				if self.la == 'Right'
 				self.mode = 0
+		elif self.mode == 3
+				print('mode 3')
+				self.mode = 0
+		elif self.mode == 4
+				print('mode 4')
+				self.mode = 0
 				
 		Spub.publish(int(steer))
 		Rpub.publish(int(Rspeed))
