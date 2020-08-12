@@ -3,7 +3,7 @@
 import serial
 import time
 import struct
-from std_msgs.msg import UInt8, Int16
+from std_msgs.msg import Int16
 #from 
 import sys
 import os
@@ -19,9 +19,9 @@ class ERP42_Control():
 		self.count = 0
 		
 		rospy.init_node('erp42_pub', anonymous=True)
-		#rospy.Subscriber('/twist_cmd', TwistStamped, self.speedCallback)
-		#rospy.Subscriber('/twist_cmd', TwistStamped, self.ctrl_Callback)
-		#rospy.Subscriber('/detection/image_detector/objects', DetectedObjectArray, self.label_read)
+		rospy.Subscriber('/twist_cmd', TwistStamped, self.speedCallback)
+		rospy.Subscriber('/twist_cmd', TwistStamped, self.ctrl_Callback)
+		rospy.Subscriber('/detection/image_detector/objects', DetectedObjectArray, self.label_read)
 
 		self.
 		self.pub = 
@@ -53,8 +53,8 @@ class ERP42_Control():
 		
 
 	def ready_to_pub(self):
-		Spub = rospy.Publisher('/steer', UInt8 , queue_size = 10)
-		Rpub = rospy.Publisher('/speed', UInt8 , queue_size = 10)
+		Spub = rospy.Publisher('/erp42/steer', Int16 , queue_size = 10)
+		Rpub = rospy.Publisher('/erp42/speed', Int16 , queue_size = 10)
 		Rspeed = self.speed
 		steer = self.steering*180/3.141592
 		if steer > 28 :
