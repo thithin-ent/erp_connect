@@ -71,9 +71,13 @@ class ERP42_Control():
 				self.mode = 0
 				
 		elif self.mode == 2 && (self.la == 'red' || self.la == 'yellow' || self.la == 'green') : 
+			while self.mode != 0 :
 				Rspeed = 0
+				steer = 0
+				Spub.publish(int(steer))
+				Rpub.publish(int(Rspeed))
 				if self.la == 'Right'
-				self.mode = 0
+					self.mode = 0
 		elif self.mode == 3
 				print('mode 3')
 				self.mode = 0
