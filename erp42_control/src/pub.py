@@ -94,8 +94,18 @@ class ERP42_Control():
 				rospy.sleep(0.1)
 		elif self.mode == 4:
 				print('mode 4')
-				image = cv2.imread("/home/user/test2.jpeg", cv2.IMREAD_ANYCOLOR)
-				gray = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY) 
+				image = cv2.imread("/home/kingofgps/test.jpeg", cv2.IMREAD_ANYCOLOR)
+				mark = np.copy(image)
+				# white detect
+				blue_threshold = 200
+				green_threshold = 200
+				red_threshold = 200
+				bgr_threshold = [blue_threshold, green_threshold, red_threshold]
+				thresholds = (image[:,:,0] < bgr_threshold[0])  | (image[:,:,1] < bgr_threshold[1]) | (image[:,:,2] < bgr_threshold[2])
+				mark[thresholds] = [0,0,0]
+
+					
+				gray = cv2.cvtColor(mark,cv2.COLOR_BGR2GRAY) 
 				canny = cv2.Canny(gray, 5000, 1500, apertureSize = 5, L2gradient = True)
 				lines = cv2.HoughLinesP(canny, 0.8, np.pi / 180, 90, minLineLength = 10, maxLineGap = 100)
 
@@ -103,8 +113,9 @@ class ERP42_Control():
 					if abs(i[0][1] - i[0][3]) < 20: #y pixel diff
 						cv2.line(image, (i[0][0], i[0][1]), (i[0][2], i[0][3]), (255, 0, 0), 2)
 
-				cv2.imshow("test", canny)
-				cv2.imshow("test2", image)
+				cv2.imshow("test", mark)
+				cv2.imshow("test2", canny)
+				cv2.imshow("test3", image)
 				cv2.waitKey(0)
 				cv2.destroyAllWindows()
 				self.mode = 0
