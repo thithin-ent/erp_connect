@@ -100,7 +100,8 @@ class ERP42_Control():
 				lines = cv2.HoughLinesP(canny, 0.8, np.pi / 180, 90, minLineLength = 10, maxLineGap = 100)
 
 				for i in lines:
-					cv2.line(image, (i[0][0], i[0][1]), (i[0][2], i[0][3]), (0, 0, 255), 2)
+					if abs(i[0][1] - i[0][3]) < 20: #y pixel diff
+						cv2.line(image, (i[0][0], i[0][1]), (i[0][2], i[0][3]), (255, 0, 0), 2)
 
 				cv2.imshow("test", canny)
 				cv2.imshow("test2", image)
