@@ -3,28 +3,28 @@
 import serial
 import time
 import struct
-from std_msgs.msg import Int16
+from std_msgs.msg import UInt8, Int16
 #from 
 import sys
 import os
 import rospy
 import message_filters
+import cv2
+import numpy as np
 
 class ERP42_Control():
 	def __init__(self):
 		self.speed = 0
 		self.steering = 0
-		self.mode = 1
+		self.mode = 4
 		self.la = 'asdg'
 		self.count = 0
 		
 		rospy.init_node('erp42_pub', anonymous=True)
-		rospy.Subscriber('/twist_cmd', TwistStamped, self.speedCallback)
-		rospy.Subscriber('/twist_cmd', TwistStamped, self.ctrl_Callback)
-		rospy.Subscriber('/detection/image_detector/objects', DetectedObjectArray, self.label_read)
+		#rospy.Subscriber('/twist_cmd', TwistStamped, self.speedCallback)
+		#rospy.Subscriber('/twist_cmd', TwistStamped, self.ctrl_Callback)
+		#rospy.Subscriber('/detection/image_detector/objects', DetectedObjectArray, self.label_read)
 
-		self.
-		self.pub = 
 	def pub_to_serial(self):
 
 		self.mode_ch()
@@ -48,13 +48,13 @@ class ERP42_Control():
 	def mode_ch(self):
 		if self.la == 'child\r':
 			self.mode = 1
-		elif self.la == 'Right\r':
+		elif self.la == 'left\r':
 			self.mode = 2
 		
 
 	def ready_to_pub(self):
-		Spub = rospy.Publisher('/erp42/steer', Int16 , queue_size = 10)
-		Rpub = rospy.Publisher('/erp42/speed', Int16 , queue_size = 10)
+		Spub = rospy.Publisher('/steer', UInt8 , queue_size = 10)
+		Rpub = rospy.Publisher('/speed', UInt8 , queue_size = 10)
 		Rspeed = self.speed
 		steer = self.steering*180/3.141592
 		if steer > 28 :
@@ -70,19 +70,45 @@ class ERP42_Control():
 				self.count = 0
 				self.mode = 0
 				
-		elif self.mode == 2 && (self.la == 'red' || self.la == 'yellow' || self.la == 'green') : 
+		elif self.mode == 2 :#and (self.la == 'red' or self.la == 'yellow' or self.la == 'green') : 
 			while self.mode != 0 :
 				Rspeed = 0
 				steer = 0
 				Spub.publish(int(steer))
 				Rpub.publish(int(Rspeed))
-				if self.la == 'Right'
+				print(self.mode)
+				self.count += 1				
+				if self.la == 'left' or self.count == 100:
+					self.count = 0
 					self.mode = 0
-		elif self.mode == 3
-				print('mode 3')
-				self.mode = 0
-		elif self.mode == 4
+				rospy.sleep(0.1)
+		elif self.mode == 3 :#and (self.la == 'red' or self.la == 'yellow' or self.la == 'left') : 
+			while self.mode != 0 :
+				Rspeed = 0
+				steer = 0
+				Spub.publish(int(steer))
+				Rpub.publish(int(Rspeed))
+				print(self.mode)				
+				if self.la == 'green':
+					self.mode = 0
+				rospy.sleep(0.1)
+		elif self.mode == 4:
 				print('mode 4')
+				image = cv2.imread("/home/user/test2.jpeg", cv2.IMREAD_ANYCOLOR)
+				gray = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY) 
+				canny = cv2.Canny(gray, 5000, 1500, apertureSize = 5, L2gradient = True)
+				lines = cv2.HoughLinesP(canny, 0.8, np.pi / 180, 90, minLineLength = 10, maxLineGap = 100)
+
+				for i in lines:
+					cv2.line(image, (i[0][0], i[0][1]), (i[0][2], i[0][3]), (0, 0, 255), 2)
+
+				cv2.imshow("test", canny)
+				cv2.imshow("test2", image)
+				cv2.waitKey(0)
+				cv2.destroyAllWindows()
+				self.mode = 0
+		elif self.mode == 5:
+				print('mode 5')
 				self.mode = 0
 				
 		Spub.publish(int(steer))
@@ -99,4 +125,3 @@ if __name__ == '__main__':
 
 	except Exception as e:
 		print(e)
-
