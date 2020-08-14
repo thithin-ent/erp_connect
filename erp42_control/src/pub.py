@@ -20,7 +20,7 @@ class ERP42_Control():
 		self.speed = 0
 		self.steering = 0
 		self.mode = 4
-		self.la = 'asdg'
+		self.la = 'none'
 		self.count = 0
 		self.lineimage_d = 0
 		
