@@ -11,6 +11,7 @@ import rospy
 import message_filters
 import cv2
 import numpy as np
+from cv-bridge import CvBridge, CvBridgeError
 
 class ERP42_Control():
 	def __init__(self):
@@ -24,6 +25,7 @@ class ERP42_Control():
 		#rospy.Subscriber('/twist_cmd', TwistStamped, self.speedCallback)
 		#rospy.Subscriber('/twist_cmd', TwistStamped, self.ctrl_Callback)
 		#rospy.Subscriber('/detection/image_detector/objects', DetectedObjectArray, self.label_read)
+			
 
 	def pub_to_serial(self):
 
