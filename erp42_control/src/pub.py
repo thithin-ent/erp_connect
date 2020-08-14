@@ -20,11 +20,13 @@ class ERP42_Control():
 		self.mode = 4
 		self.la = 'asdg'
 		self.count = 0
+		self.lineimage = 0
 		
 		rospy.init_node('erp42_pub', anonymous=True)
 		#rospy.Subscriber('/twist_cmd', TwistStamped, self.speedCallback)
 		#rospy.Subscriber('/twist_cmd', TwistStamped, self.ctrl_Callback)
-		#rospy.Subscriber('/detection/image_detector/objects', DetectedObjectArray, self.label_read)
+		rospy.Subscriber('/twist_cmd', TwistStamped, self.image_Callback)
+		#rospy.Subscriber('/detection/image_detector/objects', DetectedObjectArray, self.label_Callback)
 			
 
 	def pub_to_serial(self):
@@ -39,8 +41,12 @@ class ERP42_Control():
 
 	def ctrl_Callback(self, msg):
 		self.steering = -msg.twist.angular.z
+		
+	def image_Callback(self, msg):
+		cv
+		
 
-	def label_read(self,msg):
+	def self.label_Callback(self,msg):
 		if msg.objects:
 			self.la = msg.objects[0].label
 		else :
