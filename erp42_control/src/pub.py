@@ -106,7 +106,6 @@ class ERP42_Control():
 				#image = cv2.imread("/home/kingofgps/test.jpeg", cv2.IMREAD_ANYCOLOR)
 				if type(self.cv_image) != type(None) :
 					mark = np.copy(self.cv_image)
-					print('msdfsdf')
 					# white detect
 					blue_threshold = 200
 					green_threshold = 200
@@ -115,7 +114,6 @@ class ERP42_Control():
 					thresholds = (self.cv_image[:,:,0] < bgr_threshold[0])  | (self.cv_image[:,:,1] < bgr_threshold[1]) | (self.cv_image[:,:,2] < bgr_threshold[2])
 					mark[thresholds] = [0,0,0]
 
-					print('m112222222')
 					gray = cv2.cvtColor(mark,cv2.COLOR_BGR2GRAY) 
 					canny = cv2.Canny(gray, 5000, 1500, apertureSize = 5, L2gradient = True)
 					lines = cv2.HoughLinesP(canny, 0.8, np.pi / 180, 90, minLineLength = 10, maxLineGap = 100)
