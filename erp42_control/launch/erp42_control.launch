@@ -1,0 +1,6 @@
+<launch>
+	<node name= "erp42_sub" pkg= "erp42_control" type= "erp_control_sub.py">
+	</node>
+	<node name= "erp42_pub" pkg= "erp42_control" type= "pub.py">
+	</node>
+</launch>
