@@ -64,10 +64,10 @@ class ERP42_Serial():
 	def create_erp42_cmd_packet(self):
 		fmt = '>BBBBBBHhBBBB'
 		self.packet_bytes_cmd = struct.pack(fmt, 0x53, 0x54, 0x58
-			,self.auto, self.e_stop, self.gear, int(self.speed*10), int(self.steer*71), self.brake, self.alive
+			,self.auto, self.e_stop, self.gear, int(self.speed*10), int(self.steering*71), self.brake, self.alive
 			,0xD, 0xA)
-		self.aux_data = [self.auto, self.e_stop, self.gear, self.speed, self.steer, self.brake, self.alive]
-		#print(self.aux_data)
+		self.aux_data = [self.auto, self.e_stop, self.gear, self.speed, self.steering, self.brake, self.alive]
+		print(self.aux_data)
 		self.alive += 1
 		if self.alive == 256:
 			self.alive = 0
@@ -94,4 +94,3 @@ if __name__ == '__main__':
 
 	except Exception as e:
 		print(e)
-
