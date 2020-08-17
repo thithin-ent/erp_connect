@@ -20,7 +20,7 @@ class ERP42_Control():
 		self.bridge = CvBridge()
 		self.speed = 1
 		self.steering = 1
-		self.mode = 0
+		self.mode = 4
 		self.la = 'none'
 		self.count = 0
 		self.cv_image = None
@@ -28,7 +28,7 @@ class ERP42_Control():
 		rospy.init_node('erp42_pub', anonymous=True)
 		rospy.Subscriber('/twist_cmd', TwistStamped, self.speedCallback)
 		rospy.Subscriber('/twist_cmd', TwistStamped, self.ctrl_Callback)
-		rospy.Subscriber('/image_raw', Image, self.image_Callback)
+		rospy.Subscriber('/usb_cam/image_raw', Image, self.image_Callback)
 		rospy.Subscriber('/detection/image_detector/objects', DetectedObjectArray, self.label_Callback)
 			
 
@@ -45,6 +45,8 @@ class ERP42_Control():
 		
 	def image_Callback(self, msg):
 		self.cv_image = self.bridge.imgmsg_to_cv2(msg, "bgr8")
+		self.height = self.cv_image.shape[0]
+		self.width = self.cv_image.shape[1]
 
 	def label_Callback(self,msg):
 		if msg.objects:
@@ -105,43 +107,43 @@ class ERP42_Control():
 					self.mode = 0
 				rospy.sleep(0.1)
 		elif self.mode == 4:
-				#image = cv2.imread("/home/kingofgps/test.jpeg", cv2.IMREAD_ANYCOLOR)
 				if type(self.cv_image) != type(None) :
-					mark = np.copy(self.cv_image)
-					#print(type(mark))
-					# white detect
-					blue_threshold = 200
-					green_threshold = 200
-					red_threshold = 200
-					bgr_threshold = [blue_threshold, green_threshold, red_threshold]
-					thresholds = (self.cv_image[:,:,0] < bgr_threshold[0])  | (self.cv_image[:,:,1] < bgr_threshold[1]) | (self.cv_image[:,:,2] < bgr_threshold[2])
-					mark[thresholds] = [0,0,0]
+					hsv = cv2.cvtColor(self.cv_image, cv2.COLOR_BGR2HSV)
+					h, s, v = cv2.split(hsv)
+					v = cv2.inRange(v, 200, 255)
+					white = cv2.bitwise_and(hsv, hsv, mask = v)
+					white = cv2.cvtColor(white, cv2.COLOR_HSV2BGR)
+					vertices = np.array([[(50,self.height),(self.width/2-45, self.height/2+60), (self.width/2+45, self.height/2+60), (self.width-50,self.height)]], dtype=np.int32)
+					mask = np.zeros_like(self.cv_image)
+					cv2.fillPoly(mask, vertices, (255,255,255))
+					mark = cv2.bitwise_and(mask, white)
+					#blue_threshold = 200   # white detect
+					#green_threshold = 200
+					#red_threshold = 200
+					#bgr_threshold = [blue_threshold, green_threshold, red_threshold]
+					#thresholds = (self.cv_image[:,:,0] < bgr_threshold[0])  | (self.cv_image[:,:,1] < bgr_threshold[1]) | (self.cv_image[:,:,2] < bgr_threshold[2])
+					#mark[thresholds] = [0,0,0]
 					gray = cv2.cvtColor(mark,cv2.COLOR_BGR2GRAY) 
 					canny = cv2.Canny(gray, 5000, 1500, apertureSize = 5, L2gradient = True)
 					lines = cv2.HoughLinesP(canny, 0.8, np.pi / 180, 90, minLineLength = 10, maxLineGap = 100)
 					if type(lines) != type(None) :
-					#	while self.count > 30 :
-					#		self.count += 1
-					#		Spub.publish(0)
-					#		Rpub.publish(0)
-					#		rospy.sleep(0.1)
-					#	self.mode = 0
 						for i in lines:
-							if abs(i[0][1] - i[0][3]) < 20 and abs(i[0][0] - i[0][2]) > 280: #y pixel diff
-								while self.count < 30 :
-									self.count += 1
-									print(self.count)
-									Spub.publish(0)
-									Rpub.publish(0)
-									rospy.sleep(0.1)
-								self.count = 0
-								self.mode = 0
-								cv2.line(self.cv_image, (i[0][0], i[0][1]), (i[0][2], i[0][3]), (255, 0, 0), 2)
-								break
+							#if abs(i[0][1] - i[0][3]) < 20 and abs(i[0][0] - i[0][2]) > 280: # pixel check
+							cv2.line(self.cv_image, (i[0][0], i[0][1]), (i[0][2], i[0][3]), (255, 0, 0), 2)
+					#			while self.count < 30 :
+					#				self.count += 1
+					#				print(self.count)
+					#				Spub.publish(0)
+					#				Rpub.publish(0)
+					#				rospy.sleep(0.1)
+					#			self.count = 0
+					#			self.mode = 0
+					#			break
 				
 					cv2.imshow("test", self.cv_image)
 					cv2.imshow("test2", canny)
-					cv2.imshow("test3", mark)
+					cv2.imshow("test3", white)
+					cv2.imshow("test4", white)
 					cv2.waitKey(1)
 		elif self.mode == 5:
 				print('mode 5')
