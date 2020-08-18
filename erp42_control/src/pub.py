@@ -117,12 +117,6 @@ class ERP42_Control():
 					mask = np.zeros_like(self.cv_image)
 					cv2.fillPoly(mask, vertices, (255,255,255))
 					mark = cv2.bitwise_and(mask, white)
-					#blue_threshold = 200   # white detect
-					#green_threshold = 200
-					#red_threshold = 200
-					#bgr_threshold = [blue_threshold, green_threshold, red_threshold]
-					#thresholds = (self.cv_image[:,:,0] < bgr_threshold[0])  | (self.cv_image[:,:,1] < bgr_threshold[1]) | (self.cv_image[:,:,2] < bgr_threshold[2])
-					#mark[thresholds] = [0,0,0]
 					gray = cv2.cvtColor(mark,cv2.COLOR_BGR2GRAY) 
 					canny = cv2.Canny(gray, 5000, 1500, apertureSize = 5, L2gradient = True)
 					lines = cv2.HoughLinesP(canny, 0.8, np.pi / 180, 90, minLineLength = 10, maxLineGap = 100)
@@ -143,7 +137,6 @@ class ERP42_Control():
 					cv2.imshow("test", self.cv_image)
 					cv2.imshow("test2", canny)
 					cv2.imshow("test3", white)
-					cv2.imshow("test4", white)
 					cv2.waitKey(1)
 		elif self.mode == 5:
 				print('mode 5')
