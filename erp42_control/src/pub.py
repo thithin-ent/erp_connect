@@ -95,7 +95,6 @@ class ERP42_Control():
 				print('mode 2 start')
 				self.count += 1				
 				if self.la == 'Left Signal\r': #or self.count == 100:
-					self.count = 0
 					self.mode = 0
 				rospy.sleep(0.1)
 		elif self.mode == 3 and (self.la == 'Stop Signal\r' or self.la == 'Yellow Signal\r' or self.la == 'Left Signal\r') :
@@ -109,11 +108,11 @@ class ERP42_Control():
 		elif self.mode == 4:
 				if type(self.cv_image) != type(None) :
 					hsv = cv2.cvtColor(self.cv_image, cv2.COLOR_BGR2HSV)
-					h, s, v = cv2.split(hsv)
-					v = cv2.inRange(v, 200, 255)
+					h, s, v = cv2.split(hsv)			
+					v = cv2.inRange(v, 200, 255)				# white dettect
 					white = cv2.bitwise_and(hsv, hsv, mask = v)
 					white = cv2.cvtColor(white, cv2.COLOR_HSV2BGR)
-					vertices = np.array([[(50,self.height),(self.width/2-45, self.height/2+60), (self.width/2+45, self.height/2+60), (self.width-50,self.height)]], dtype=np.int32)
+					vertices = np.array([[(50,self.height),(self.width/2-45, self.height/2+60), (self.width/2+45, self.height/2+60), (self.width-50,self.height)]], dtype=np.int32) # ROI
 					mask = np.zeros_like(self.cv_image)
 					cv2.fillPoly(mask, vertices, (255,255,255))
 					mark = cv2.bitwise_and(mask, white)
