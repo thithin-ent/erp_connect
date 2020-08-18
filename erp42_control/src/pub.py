@@ -56,11 +56,11 @@ class ERP42_Control():
 
 
 	def mode_ch(self):
-		if self.la == 'Child\r':
+		if self.la == 'Child\r':			
 			self.mode = 1
-		elif self.la == 'Left\r':
+		elif self.la == 'Left\r':		
 			self.mode = 2
-		elif self.la == 'Straight\r':
+		elif self.la == 'Straight\r':		
 			self.mode = 3
 		elif self.la == 'CrossWalk\r':
 			self.mode = 4
@@ -77,7 +77,7 @@ class ERP42_Control():
 			steer = 28
 		elif steer < -28 :
 			steer = -28
-		if self.mode == 1 :
+		if self.mode == 1 :							# school zone or slow
 			self.count += 1
 			print(self.count)
 			if Rspeed > 3:
@@ -86,7 +86,7 @@ class ERP42_Control():
 				self.count = 0
 				self.mode = 0
 				
-		elif self.mode == 2 and (self.la == 'Stop Signal\r' or self.la == 'Yellow Signal\r' or self.la == 'Straight Signal\r') : 
+		elif self.mode == 2 and (self.la == 'Stop Signal\r' or self.la == 'Yellow Signal\r' or self.la == 'Straight Signal\r') :  # left turning 
 			while self.mode != 0 :
 				Rspeed = 0
 				steer = 0
@@ -97,15 +97,15 @@ class ERP42_Control():
 				if self.la == 'Left Signal\r': #or self.count == 100:
 					self.mode = 0
 				rospy.sleep(0.1)
-		elif self.mode == 3 and (self.la == 'Stop Signal\r' or self.la == 'Yellow Signal\r' or self.la == 'Left Signal\r') :
+		elif self.mode == 3 and (self.la == 'Stop Signal\r' or self.la == 'Yellow Signal\r' or self.la == 'Left Signal\r') :	   # straight
 			while self.mode != 0 :
 				Spub.publish(0)
 				Rpub.publish(0)
 				print('mode 3 start')				
 				if self.la == 'Straight Signal\r':
 					self.mode = 0
-				rospy.sleep(0.1)
-		elif self.mode == 4:
+				rospy.sleep(0.1)	
+		elif self.mode == 4:								# stopline and crosswalk 
 				if type(self.cv_image) != type(None) :
 					hsv = cv2.cvtColor(self.cv_image, cv2.COLOR_BGR2HSV)
 					h, s, v = cv2.split(hsv)			
@@ -137,7 +137,7 @@ class ERP42_Control():
 					cv2.imshow("test2", canny)
 					cv2.imshow("test3", white)
 					cv2.waitKey(1)
-		elif self.mode == 5:
+		elif self.mode == 5:								# parking
 				print('mode 5')
 				self.mode = 0
 				
