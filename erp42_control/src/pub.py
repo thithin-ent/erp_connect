@@ -18,8 +18,8 @@ from cv_bridge import CvBridge, CvBridgeError
 class ERP42_Control():
 	def __init__(self):
 		self.bridge = CvBridge()
-		self.speed = 1
-		self.steering = 1
+		self.speed = 0
+		self.steering = 0
 		self.mode = 4
 		self.la = 'none'
 		self.count = 0
