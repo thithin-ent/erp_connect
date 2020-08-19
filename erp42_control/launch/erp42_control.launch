@@ -3,4 +3,5 @@
 	</node>
 	<node name= "erp42_pub" pkg= "erp42_control" type= "pub.py">
 	</node>
+	<node name= "erp42_status" pkg= "erp42_control" type= "status.py">
 </launch>
