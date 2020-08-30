@@ -86,7 +86,7 @@ class ERP42_Serial():
 			steer=struct.unpack('h',self.read[8:10])
 			print(steer)
 			speed=struct.unpack('H',self.read[6:8])
-			encoder=struct.unpack('i',self.read[10:14])
+			encoder=struct.unpack('i',self.read[11:15])
 			print(encoder[0])
 			live=struct.unpack('B',self.read[15])
 			print(live[0])
