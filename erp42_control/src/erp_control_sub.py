@@ -3,7 +3,7 @@
 import serial
 import time
 import struct
-from std_msgs.msg import UInt8, Int16
+from std_msgs.msg import UInt8, Int16, Float64
 import sys
 import os
 import rospy
@@ -26,19 +26,19 @@ class ERP42_Serial():
 		self.alive = 0
 		
 		rospy.init_node('erp42_sub', anonymous=True)
-		rospy.Subscriber('/erp42/speed', Int16, self.speedCallback)
+		rospy.Subscriber('/erp42/speed', Float64, self.speedCallback)
 		rospy.Subscriber('/erp42/brake', UInt8, self.brakeCallback)
 		rospy.Subscriber('/erp42/gear', UInt8, self.gearCallback)
 		rospy.Subscriber('/erp42/auto', UInt8, self.autoCallback)
 		rospy.Subscriber('/erp42/e_stop', UInt8, self.e_stopCallback)
-		rospy.Subscriber('/erp42/steer', Int16, self.ctrl_Callback)
+		rospy.Subscriber('/erp42/steer', Float64, self.ctrl_Callback)
 
-		#pub = rospy.Publisher('/test', UInt8 , queue_size = 10)
+		self.speedpub = rospy.Publisher('/speed_status', Int16 , queue_size = 10)
+		self.steerpub = rospy.Publisher('/steering_status', Int16 , queue_size = 10)
 	def sub_to_serial(self):
-
 		self.create_erp42_cmd_packet()
 		self.send_packet()
-		#self.receive_packet()
+		self.receive_packet()
 		# print('{} {} {} {} {} {} {}'.format(self.auto, self.e_stop, self.gear, self.speed, self.brake, self.steering, self.alive))
 		
 		rospy.sleep(0.1)
@@ -79,11 +79,19 @@ class ERP42_Serial():
 		self.ser.write(b'\n')
 		# self.ser.close()
 
-	#def receive_packet(self):
-		#self.read = self.ser.readline()
-		#print(self.read)
-		#print(self.read[4])
-		#pub.publish(self.read[4])
+	def receive_packet(self):
+		self.read = self.ser.readline()
+		print('read:', self.read)
+		if self.read[10:14] != '':
+			steer=struct.unpack('h',self.read[8:10])
+			print(steer)
+			speed=struct.unpack('H',self.read[6:8])
+			encoder=struct.unpack('i',self.read[10:14])
+			print(encoder[0])
+			live=struct.unpack('B',self.read[15])
+			print(live[0])
+			self.speedpub.publish(speed[0])
+			self.steerpub.publish(steer[0])
 
 if __name__ == '__main__':
 
